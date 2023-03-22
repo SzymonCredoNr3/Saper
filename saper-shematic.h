@@ -1,5 +1,8 @@
 #include <QDebug>
 
+#define byte char
+using namespace std;
+
 enum user_mark{
     znak_zapytania = 2,
     flaga = 1,
@@ -12,7 +15,7 @@ struct box{
     box();
     box* otoczenie();
 };
-enum size{
+enum board_size{
     smal = 1,
     S_medium = 2,
     big = 3
@@ -26,8 +29,11 @@ enum difficulty{
 class Saper{
     box* plansza;
     unsigned short int miny;
-
+protected:
+    board_size wielkosc;
+    difficulty trudnosc;
 public:
+
     Saper();
     box* get_plansza();
     int pozostałe_miny();
