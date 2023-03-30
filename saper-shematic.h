@@ -1,8 +1,19 @@
 #include <QDebug>
+#include <vector>
 
 #define byte char
 using namespace std;
 
+class SaperError : exception{
+    string msg;
+public:
+    explicit SaperError(string msg){
+        this->msg = msg;
+    }
+    const char* what(){
+        return msg.c_str();
+    }
+};
 enum user_mark{
     znak_zapytania = 2,
     flaga = 1,
@@ -10,10 +21,11 @@ enum user_mark{
     odsloniente = -1
 };
 struct box{
-    char ile_bomb; // pseudo byte int, jeśli bomba 9, w pozostałych przypadkach liczba bomb do okoła
+    byte ile_bomb; // pseudo byte int, jeśli bomba 9, w pozostałych przypadkach liczba bomb do okoła
     user_mark oznaczenie;
     box();
-    box* otoczenie();
+
+    void hit();
 };
 enum board_size{
     smal = 1,
@@ -27,16 +39,16 @@ enum difficulty{
 };
 
 class Saper{
-    box* plansza;
     unsigned short int miny;
+    void inline generateMap();
+    vector<box*> otoczenie(box* target);
 protected:
-    board_size wielkosc;
+    vector<box> plansza;
+    unsigned short int widthPlansza, heightPlansza;
     difficulty trudnosc;
 public:
 
     Saper(board_size w, difficulty t);
-    box* get_plansza();
     int pozostałe_miny();
-    void hit_box(int x, int y);
 
 };

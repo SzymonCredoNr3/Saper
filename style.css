@@ -2,7 +2,6 @@ QMenuBar{
     background: white;
     margin: 10px;
 }
-QPushButton{
-    width: 10px;
-    height: 10px;
+GuiBox{
+    border:none;
 }

@@ -34,10 +34,26 @@ public:
 
 class GuiBox : public QPushButton{
 private:
+    bool clicked;
     box* master;
 public:
-    GuiBox(){
-        
+    GuiBox(box* master){
+        this->master = master;
+        clicked = false;
+        setText(" ");
+        setFixedSize(30, 30);
+        mousePressEvent();
+    }
+    void mousePressEvent(QMouseEvent *e = nullptr) {
+        if(!clicked){
+            clicked = true;
+            setFlat(true);
+            if(master->ile_bomb >=9)
+                setText("X");
+            else if(master->ile_bomb != 0)
+                setText(QString::fromStdString(to_string((int)(master->ile_bomb))));
+            master->hit();
+        }
     }
 
 };
@@ -55,40 +71,20 @@ public:
             boardWidget->setLayout(createBoard(root));
         auto *rootLayout = new QVBoxLayout(root);
             rootLayout->addWidget(boardWidget);
-        root->setLayout(createBoard(root));
 
+        root->setLayout(createBoard(root));
         this->setCentralWidget(root);
         this->show();
     }
 private:
     QGridLayout* createBoard(QWidget* root){
-        qDebug() << "wlazł";
         auto *l = new QGridLayout(root);
-        int width, height;
+        l->setContentsMargins(1,30,1,1);
+        l->setSpacing(0);
 
-        if(wielkosc == smal){
-            width = 10;
-            height = 15;
-        }
-        else if(wielkosc == S_medium){
-            width = 15;
-            height = 30;
-        }
-        else if(wielkosc == big){
-            width = 20;
-            height = 40;
-        }
-        else{
-            throw SaperGuiError("Błędna wielkosc");
-        }
-        qDebug() << width;
-        qDebug() << height;
-        for(int i = 0; i< height; i++){
-            for(int j = 0; j<width; j++){
-                qDebug() << "cos";
-                qDebug() << i;
-                qDebug() << j;
-                l -> addWidget(new GuiBox(), i, j);
+        for(int i = 0; i< widthPlansza; i++){
+            for(int j = 0; j<heightPlansza; j++){
+                l -> addWidget(new GuiBox(&plansza[i*widthPlansza+j]), i, j);
             }
         }
         return l;
@@ -103,7 +99,7 @@ int main(int argc, char *argv[]) {
     SaperGui window(smal, eazy);
 
     // Load stylesheets
-    ifstream CssFile(R"(C:\Users\szymo\Desktop\SapSapSap\SapSap\style.css)");
+    ifstream CssFile(R"(C:\Users\szymo\CLionProjects\SapSapSap\SapSap\style.css)");
     string css_content, tmp_string;
     while(getline(CssFile, tmp_string))
         css_content += tmp_string;
