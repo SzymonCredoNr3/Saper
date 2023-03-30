@@ -34,7 +34,7 @@ protected:
     difficulty trudnosc;
 public:
 
-    Saper();
+    Saper(board_size w, difficulty t);
     box* get_plansza();
     int pozostałe_miny();
     void hit_box(int x, int y);

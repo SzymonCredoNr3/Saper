@@ -9,8 +9,9 @@ box *box::otoczenie() {
 
 }
 // Saper
-Saper::Saper() {
-
+Saper::Saper(board_size w, difficulty t) {
+    wielkosc = w;
+    trudnosc = t;
 }
 box* Saper::get_plansza(){
     return plansza;
