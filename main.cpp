@@ -37,11 +37,12 @@ private:
     bool clicked;
     box* master;
 public:
-    GuiBox(box* master){
+    GuiBox(box* master, int coordinate){
         this->master = master;
         clicked = false;
-        setText(" ");
+        setText("-");
         setFixedSize(30, 30);
+        setToolTip(QString::fromStdString(to_string(coordinate)));
         mousePressEvent();
     }
     void mousePressEvent(QMouseEvent *e = nullptr) {
@@ -82,9 +83,9 @@ private:
         l->setContentsMargins(1,30,1,1);
         l->setSpacing(0);
 
-        for(int i = 0; i< widthPlansza; i++){
-            for(int j = 0; j<heightPlansza; j++){
-                l -> addWidget(new GuiBox(&plansza[i*widthPlansza+j]), i, j);
+        for(int i = 0; i< heightPlansza; i++){
+            for(int j = 0; j<widthPlansza; j++){
+                l -> addWidget(new GuiBox(&plansza[i*widthPlansza+j], i*widthPlansza+j), i, j);
             }
         }
         return l;

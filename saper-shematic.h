@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <vector>
+#include <set>
 
 #define byte char
 using namespace std;
@@ -41,7 +42,7 @@ enum difficulty{
 class Saper{
     unsigned short int miny;
     void inline generateMap();
-    vector<box*> otoczenie(box* target);
+    set<box*> otoczenie(box* target);
 protected:
     vector<box> plansza;
     unsigned short int widthPlansza, heightPlansza;

@@ -1,5 +1,8 @@
 #include "saper-shematic.h"
 #include <random>
+#include <iostream>
+
+using namespace std;
 // box
 box::box(){
     oznaczenie = null;
@@ -13,16 +16,16 @@ void box::hit() {
 // Saper
 Saper::Saper(board_size w, difficulty t) {
     if(w == smal){
-        widthPlansza = 10;
-        heightPlansza = 15;
+        widthPlansza = 15;
+        heightPlansza = 10;
     }
     else if(w == S_medium){
-        widthPlansza = 15;
-        heightPlansza = 30;
+        widthPlansza = 30;
+        heightPlansza = 15;
     }
     else if(w == big){
-        widthPlansza = 20;
-        heightPlansza = 40;
+        widthPlansza = 40;
+        heightPlansza = 20;
     }
     {
         int field_size  = widthPlansza*heightPlansza;
@@ -33,13 +36,13 @@ Saper::Saper(board_size w, difficulty t) {
             box tmp;
             plansza.push_back(tmp);
         }
-        qDebug() << plansza.size();
 
     }
     generateMap();
 }
 
-vector<box *> Saper::otoczenie(box *target) {
+set<box *> Saper::otoczenie(box *target) {
+    std::cout << "@@@otoczenie@@@";
     // get location of target
     int coordinate = 0;
     while(plansza.begin() + coordinate < plansza.end()){
@@ -47,28 +50,51 @@ vector<box *> Saper::otoczenie(box *target) {
             break;
         coordinate++;
     }
+    std::cout << "c:" << coordinate << endl;
     if(plansza.begin() + coordinate >= plansza.end())
         throw SaperError("brak pola na planszy");
-    vector<box*> wyn;
-    // góra
-    if(coordinate >= widthPlansza)
-        wyn.push_back(&plansza[coordinate - widthPlansza]);
-    if(coordinate >= widthPlansza && coordinate%widthPlansza != 0)
-        wyn.push_back(&plansza[coordinate - widthPlansza - 1]);
-    if(coordinate >= widthPlansza && coordinate%widthPlansza != widthPlansza-1)
-        wyn.push_back(&plansza[coordinate - widthPlansza + 1]);
-    //dół
-    if(coordinate% widthPlansza != heightPlansza-1)
-        wyn.push_back(&plansza[coordinate + widthPlansza]);
-    if(coordinate%widthPlansza != heightPlansza-1 && coordinate%widthPlansza != 0)
-        wyn.push_back(&plansza[coordinate + widthPlansza - 1]);
-    if(coordinate%widthPlansza != heightPlansza-1 && coordinate%widthPlansza != widthPlansza-1)
-        wyn.push_back(&plansza[coordinate + widthPlansza + 1]);
-    //lewo
-    if(coordinate%widthPlansza != 0)
-        wyn.push_back(&plansza[coordinate-1]);
-    if(coordinate%widthPlansza != widthPlansza-1)
-        wyn.push_back(&plansza[coordinate+1]);
+    set<box*> wyn;
+    bool zg_w = coordinate%widthPlansza != 0, // zachodniej (nie można przy lewej granicy)
+         zg_e = coordinate%widthPlansza != widthPlansza-1, // wschodniej (nie można przy prawej granicy)
+         zg_s = coordinate < widthPlansza*(heightPlansza-1), // południowej (nie można przy dole planszy)
+         zg_n = coordinate >= widthPlansza; // północnej (nie można przy górze planszy)
+    if(zg_s) {
+        wyn.insert(&plansza[coordinate + widthPlansza]); // y + 1
+        cout << coordinate + widthPlansza << endl;
+    }
+    if(zg_n) {
+        wyn.insert(&plansza[coordinate - widthPlansza]); // y - 1
+        cout << coordinate - widthPlansza << endl;
+    }
+    if(zg_w){
+        wyn.insert(&plansza[coordinate-1]); // x - 1
+        cout << coordinate-1 << endl;
+    }
+
+    if(zg_e){
+        wyn.insert(&plansza[coordinate+1]); // x + 1
+        cout << coordinate+1 << endl;
+    }
+
+    if(zg_s && zg_w){
+        wyn.insert(&plansza[coordinate+widthPlansza-1]); // y + 1, x - 1
+        cout << coordinate+widthPlansza-1 << endl;
+    }
+
+    if(zg_s && zg_e){
+        wyn.insert(&plansza[coordinate+widthPlansza+1]); // y + 1, x + 1
+        cout << coordinate+widthPlansza+1 << endl;
+    }
+
+    if(zg_n && zg_w){
+        wyn.insert(&plansza[coordinate-widthPlansza-1]); // y - 1, x - 1
+        cout << coordinate-widthPlansza-1 << endl;
+    }
+    if(zg_n && zg_e){
+        wyn.insert(&plansza[coordinate-widthPlansza+1]); // y - 1, x + 1
+        cout << coordinate-widthPlansza+1 << endl;
+    }
+    cout << "w sumie: " << wyn.size() << endl;
     return wyn;
 }
 
