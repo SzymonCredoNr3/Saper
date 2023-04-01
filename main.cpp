@@ -38,46 +38,19 @@ public:
         setFixedSize(50, 50);
     }
     void mousePressEvent(QMouseEvent *e); // declared after SaperGui
-
 };
 class GuiBox : public QPushButton{
 private:
     bool clicked;
-    box* master;
 public:
+    box* master;
     GuiBox(box* master){
         this->master = master;
         clicked = false;
         setText(" ");
         setFixedSize(30, 30);
-//        mousePressEvent();
     }
-    void mousePressEvent(QMouseEvent *e = nullptr) {
-        cout << "ClickEvent on GuiBox: " << clicked << " : " << (master == nullptr) << " " << (int)master->ile_bomb << " " << master->oznaczenie << endl;
-        if(e != nullptr && e -> button() == Qt::RightButton){
-            if(master->oznaczenie == null){
-                master->oznaczenie = flaga;
-                setText("⚑");
-            }
-            else if(master->oznaczenie == flaga){
-                master->oznaczenie = znak_zapytania;
-                setText("?");
-            }
-            else if(master->oznaczenie == znak_zapytania){
-                master->oznaczenie = null;
-                setText("");
-            }
-        }
-        else if((e == nullptr || e->button() == Qt::LeftButton) && !clicked && master->oznaczenie != flaga){
-            clicked = true;
-            setFlat(true);
-            if(master->ile_bomb >=9)
-                setText("X");
-            else if(master->ile_bomb != 0)
-                setText(QString::fromStdString(to_string((int)(master->ile_bomb))));
-            master->hit();
-        }
-    }
+    void mousePressEvent(QMouseEvent *e); // declared after SaperGui
     void reset(){
         clicked = false;
         setText(" ");
@@ -115,6 +88,20 @@ public:
         for(auto i : box_list)
             i->reset();
     }
+    void click_around(GuiBox* target){
+        set<int> around;
+        set<box*> master_otoczenie = this->otoczenie(target->master);
+
+        int max_amount = master_otoczenie.size();
+        int i = 0;
+        while(max_amount != 0 || i > plansza.size()){
+            if(master_otoczenie.find(&plansza[i]) != master_otoczenie.end()){
+                box_list[i]->mousePressEvent(nullptr);
+                max_amount--;
+            }
+            i++;
+        }
+    }
 private:
     QGridLayout* createBoard(QWidget *root){
         cout << "create board" << endl;
@@ -133,18 +120,44 @@ private:
 };
 
 SaperGui* main_window;
+// mouse press detctions
 void ResetButton::mousePressEvent(QMouseEvent *e){
     this->setText(":O");
     main_window->reset();
     this->setText(":D");
 }
+void GuiBox::mousePressEvent(QMouseEvent *e = nullptr) {
+     if(e != nullptr && e -> button() == Qt::RightButton){
+        if(master->oznaczenie == null){
+            master->oznaczenie = flaga;
+            setText("⚑");
+        }
+        else if(master->oznaczenie == flaga){
+            master->oznaczenie = znak_zapytania;
+            setText("?");
+        }
+        else if(master->oznaczenie == znak_zapytania){
+            master->oznaczenie = null;
+            setText("");
+        }
+    }
+    else if((e == nullptr || e->button() == Qt::LeftButton) && !clicked && master->oznaczenie != flaga){
+        clicked = true;
+        setFlat(true);
+        if(master->ile_bomb >=9)
+            setText("X");
+        else if(master->ile_bomb != 0)
+            setText(QString::fromStdString(to_string((int)(master->ile_bomb))));
+        else{ // if(master->ile_bomb == 0)
+            main_window->click_around(this);
+        }
+        master->hit();
+    }
+}
 int main(int argc, char *argv[]) {
-
     QApplication app(argc, argv);
 
-
     main_window = new SaperGui(smal, eazy);
-
 
     // Load stylesheets
     ifstream CssFile(R"(C:\Users\szymo\CLionProjects\SapSapSap\SapSap\style.css)");

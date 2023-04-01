@@ -39,14 +39,16 @@ enum difficulty{
 
 class Saper{
     void inline generateMap();
-    set<box*> otoczenie(box* target);
 protected:
-    unsigned short int miny;
-    vector<box> plansza;
-    unsigned short int widthPlansza, heightPlansza;
+    unsigned short int miny, widthPlansza, heightPlansza;
     difficulty trudnosc;
+    vector<box> plansza;
+
+    set<box*> otoczenie(box* target);
 public:
     Saper(board_size w, difficulty t);
+    void setDifficulty(difficulty d);
+    void setSize(board_size b);
     void reset_core();
     int pozostałe_miny();
 

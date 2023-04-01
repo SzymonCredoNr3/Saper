@@ -15,19 +15,9 @@ void box::hit() {
 
 // Saper
 Saper::Saper(board_size w, difficulty t) {
-    trudnosc = t;
-    if(w == smal){
-        widthPlansza = 15;
-        heightPlansza = 10;
-    }
-    else if(w == S_medium){
-        widthPlansza = 30;
-        heightPlansza = 15;
-    }
-    else if(w == big){
-        widthPlansza = 40;
-        heightPlansza = 20;
-    }
+    setDifficulty(t);
+    setSize(w);
+
     {
         int field_size  = widthPlansza*heightPlansza;
         // przygotowuje ilosc min
@@ -77,7 +67,6 @@ set<box *> Saper::otoczenie(box *target) {
 }
 
 void Saper::generateMap() {
-    cout << "generating map" << endl;
     // prepare random generator
     random_device dev;
     mt19937 rng(dev());
@@ -98,17 +87,36 @@ void Saper::generateMap() {
 
 
 }
-void Saper::reset_core() {
-    cout << "reset core " << widthPlansza << " " << heightPlansza << " " << trudnosc << endl;
 
+void Saper::reset_core() {
     miny = widthPlansza*heightPlansza*((float)trudnosc/10.0f);
-    cout << miny << endl;
     for(auto i = plansza.begin(); i<plansza.end(); i++){
         i->ile_bomb = (char)0;
         i->oznaczenie = null;
     }
     generateMap();
 }
+
+//getters
 int Saper::pozostałe_miny(){
     return miny;
+}
+
+// setters
+void inline Saper::setDifficulty(difficulty d) {
+    trudnosc = d;
+}
+void inline Saper::setSize(board_size w) {
+    if(w == smal){
+        widthPlansza = 15;
+        heightPlansza = 10;
+    }
+    else if(w == S_medium){
+        widthPlansza = 30;
+        heightPlansza = 15;
+    }
+    else if(w == big){
+        widthPlansza = 40;
+        heightPlansza = 20;
+    }
 }
