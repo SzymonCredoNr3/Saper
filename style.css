@@ -1,7 +1,6 @@
 QMenuBar{
     background: white;
-    margin: 10px;
 }
-GuiBox{
-    border:none;
+ResetButton{
+
 }

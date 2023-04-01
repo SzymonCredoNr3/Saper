@@ -6,7 +6,7 @@ using namespace std;
 // box
 box::box(){
     oznaczenie = null;
-    ile_bomb = (byte)0;
+    ile_bomb = (char)0;
 }
 
 void box::hit() {
@@ -15,6 +15,7 @@ void box::hit() {
 
 // Saper
 Saper::Saper(board_size w, difficulty t) {
+    trudnosc = t;
     if(w == smal){
         widthPlansza = 15;
         heightPlansza = 10;
@@ -42,7 +43,6 @@ Saper::Saper(board_size w, difficulty t) {
 }
 
 set<box *> Saper::otoczenie(box *target) {
-    std::cout << "@@@otoczenie@@@";
     // get location of target
     int coordinate = 0;
     while(plansza.begin() + coordinate < plansza.end()){
@@ -50,7 +50,6 @@ set<box *> Saper::otoczenie(box *target) {
             break;
         coordinate++;
     }
-    std::cout << "c:" << coordinate << endl;
     if(plansza.begin() + coordinate >= plansza.end())
         throw SaperError("brak pola na planszy");
     set<box*> wyn;
@@ -58,47 +57,27 @@ set<box *> Saper::otoczenie(box *target) {
          zg_e = coordinate%widthPlansza != widthPlansza-1, // wschodniej (nie można przy prawej granicy)
          zg_s = coordinate < widthPlansza*(heightPlansza-1), // południowej (nie można przy dole planszy)
          zg_n = coordinate >= widthPlansza; // północnej (nie można przy górze planszy)
-    if(zg_s) {
+    if(zg_s)
         wyn.insert(&plansza[coordinate + widthPlansza]); // y + 1
-        cout << coordinate + widthPlansza << endl;
-    }
-    if(zg_n) {
+    if(zg_n)
         wyn.insert(&plansza[coordinate - widthPlansza]); // y - 1
-        cout << coordinate - widthPlansza << endl;
-    }
-    if(zg_w){
+    if(zg_w)
         wyn.insert(&plansza[coordinate-1]); // x - 1
-        cout << coordinate-1 << endl;
-    }
-
-    if(zg_e){
+    if(zg_e)
         wyn.insert(&plansza[coordinate+1]); // x + 1
-        cout << coordinate+1 << endl;
-    }
-
-    if(zg_s && zg_w){
+    if(zg_s && zg_w)
         wyn.insert(&plansza[coordinate+widthPlansza-1]); // y + 1, x - 1
-        cout << coordinate+widthPlansza-1 << endl;
-    }
-
-    if(zg_s && zg_e){
+    if(zg_s && zg_e)
         wyn.insert(&plansza[coordinate+widthPlansza+1]); // y + 1, x + 1
-        cout << coordinate+widthPlansza+1 << endl;
-    }
-
-    if(zg_n && zg_w){
+    if(zg_n && zg_w)
         wyn.insert(&plansza[coordinate-widthPlansza-1]); // y - 1, x - 1
-        cout << coordinate-widthPlansza-1 << endl;
-    }
-    if(zg_n && zg_e){
+    if(zg_n && zg_e)
         wyn.insert(&plansza[coordinate-widthPlansza+1]); // y - 1, x + 1
-        cout << coordinate-widthPlansza+1 << endl;
-    }
-    cout << "w sumie: " << wyn.size() << endl;
     return wyn;
 }
 
-void inline Saper::generateMap() {
+void Saper::generateMap() {
+    cout << "generating map" << endl;
     // prepare random generator
     random_device dev;
     mt19937 rng(dev());
@@ -115,12 +94,21 @@ void inline Saper::generateMap() {
         for(box* obok : otoczenie(tmp_box))
             obok->ile_bomb += 1;
         options.erase(options.begin()+index);
-
     }
 
 
 }
+void Saper::reset_core() {
+    cout << "reset core " << widthPlansza << " " << heightPlansza << " " << trudnosc << endl;
 
+    miny = widthPlansza*heightPlansza*((float)trudnosc/10.0f);
+    cout << miny << endl;
+    for(auto i = plansza.begin(); i<plansza.end(); i++){
+        i->ile_bomb = (char)0;
+        i->oznaczenie = null;
+    }
+    generateMap();
+}
 int Saper::pozostałe_miny(){
     return miny;
 }

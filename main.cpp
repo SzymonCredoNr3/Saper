@@ -1,5 +1,6 @@
 #include "Saper.h"
 #include <fstream>
+#include <QThread>
 
 #include <QApplication>
 #include <QDebug>
@@ -13,13 +14,13 @@
 #include <QVBoxLayout>
 
 #include <QWidget>
-#include <QSlider>
-#include <QSpinBox>
 #include <QPushButton>
+#include <QLabel>
+#include <QIcon>
+
+#include <QMouseEvent>
 
 #include <QFile>
-
-
 
 class SaperGuiError : exception{
     string msg;
@@ -31,22 +32,43 @@ public:
         return msg.c_str();
     }
 };
+class ResetButton : public QPushButton{
+public:
+    ResetButton() : QPushButton(":D"){
+        setFixedSize(50, 50);
+    }
+    void mousePressEvent(QMouseEvent *e); // declared after SaperGui
 
+};
 class GuiBox : public QPushButton{
 private:
     bool clicked;
     box* master;
 public:
-    GuiBox(box* master, int coordinate){
+    GuiBox(box* master){
         this->master = master;
         clicked = false;
-        setText("-");
+        setText(" ");
         setFixedSize(30, 30);
-        setToolTip(QString::fromStdString(to_string(coordinate)));
-        mousePressEvent();
+//        mousePressEvent();
     }
     void mousePressEvent(QMouseEvent *e = nullptr) {
-        if(!clicked){
+        cout << "ClickEvent on GuiBox: " << clicked << " : " << (master == nullptr) << " " << (int)master->ile_bomb << " " << master->oznaczenie << endl;
+        if(e != nullptr && e -> button() == Qt::RightButton){
+            if(master->oznaczenie == null){
+                master->oznaczenie = flaga;
+                setText("⚑");
+            }
+            else if(master->oznaczenie == flaga){
+                master->oznaczenie = znak_zapytania;
+                setText("?");
+            }
+            else if(master->oznaczenie == znak_zapytania){
+                master->oznaczenie = null;
+                setText("");
+            }
+        }
+        else if((e == nullptr || e->button() == Qt::LeftButton) && !clicked && master->oznaczenie != flaga){
             clicked = true;
             setFlat(true);
             if(master->ile_bomb >=9)
@@ -56,58 +78,83 @@ public:
             master->hit();
         }
     }
-
+    void reset(){
+        clicked = false;
+        setText(" ");
+        setFlat(false);
+    }
 };
 
 class SaperGui : protected Saper, public QMainWindow{
+    vector<GuiBox*> box_list;
 public:
     SaperGui(board_size w, difficulty t) : Saper(w, t), QMainWindow(){
-        auto *root = new QWidget(this);
+        setFixedSize(size());
+        auto *menu = new QMenuBar(this);
+            menu->addMenu("Obcje Nowej Gry");
 
-        // menu
-        auto *menu = new QMenuBar(root);
-            menu->addMenu("&Nowa Gra");
-        // main content
-        auto *boardWidget = new QWidget(root);
-            boardWidget->setLayout(createBoard(root));
-        auto *rootLayout = new QVBoxLayout(root);
-            rootLayout->addWidget(boardWidget);
+        auto root = new QWidget(this);
+        auto rootLayout = new QGridLayout(root);
+            rootLayout->setSpacing(0);
+            rootLayout->setAlignment(Qt::AlignmentFlag::AlignHCenter);
 
-        root->setLayout(createBoard(root));
+            // tool bar
+            rootLayout->addWidget(new QLabel("1"), 0, 0);
+            rootLayout->addWidget(new ResetButton(), 0, 1);
+            rootLayout->addWidget(new QLabel("3"), 0, 2);
+            // board
+            auto boardWidget = new QWidget(root);
+                boardWidget->setLayout(createBoard(boardWidget));
+            rootLayout->addWidget(boardWidget, 1, 0, 1, 3);
         this->setCentralWidget(root);
         this->show();
     }
+    void reset(){
+        cout << "reset" << endl;
+        reset_core();
+        for(auto i : box_list)
+            i->reset();
+    }
 private:
-    QGridLayout* createBoard(QWidget* root){
+    QGridLayout* createBoard(QWidget *root){
+        cout << "create board" << endl;
         auto *l = new QGridLayout(root);
         l->setContentsMargins(1,30,1,1);
         l->setSpacing(0);
-
         for(int i = 0; i< heightPlansza; i++){
             for(int j = 0; j<widthPlansza; j++){
-                l -> addWidget(new GuiBox(&plansza[i*widthPlansza+j], i*widthPlansza+j), i, j);
+                GuiBox* tmp = new GuiBox(&plansza[i*widthPlansza+j]);
+                box_list.push_back(tmp);
+                l -> addWidget(tmp, i, j);
             }
         }
         return l;
     }
 };
 
+SaperGui* main_window;
+void ResetButton::mousePressEvent(QMouseEvent *e){
+    this->setText(":O");
+    main_window->reset();
+    this->setText(":D");
+}
 int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
 
 
-    SaperGui window(smal, eazy);
+    main_window = new SaperGui(smal, eazy);
+
 
     // Load stylesheets
     ifstream CssFile(R"(C:\Users\szymo\CLionProjects\SapSapSap\SapSap\style.css)");
     string css_content, tmp_string;
     while(getline(CssFile, tmp_string))
         css_content += tmp_string;
-    qDebug() << QString::fromStdString(css_content);
     app.setStyleSheet( QString::fromStdString(css_content));
 
 
     return app.exec();
 }
+
 

@@ -2,7 +2,6 @@
 #include <vector>
 #include <set>
 
-#define byte char
 using namespace std;
 
 class SaperError : exception{
@@ -19,10 +18,9 @@ enum user_mark{
     znak_zapytania = 2,
     flaga = 1,
     null = 0,
-    odsloniente = -1
 };
 struct box{
-    byte ile_bomb; // pseudo byte int, jeśli bomba 9, w pozostałych przypadkach liczba bomb do okoła
+    char ile_bomb; // pseudo byte int, jeśli bomba 9, w pozostałych przypadkach liczba bomb do okoła
     user_mark oznaczenie;
     box();
 
@@ -40,16 +38,16 @@ enum difficulty{
 };
 
 class Saper{
-    unsigned short int miny;
     void inline generateMap();
     set<box*> otoczenie(box* target);
 protected:
+    unsigned short int miny;
     vector<box> plansza;
     unsigned short int widthPlansza, heightPlansza;
     difficulty trudnosc;
 public:
-
     Saper(board_size w, difficulty t);
+    void reset_core();
     int pozostałe_miny();
 
 };
