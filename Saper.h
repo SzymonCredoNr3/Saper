@@ -10,7 +10,8 @@ box::box(){
 }
 
 void box::hit() {
-
+    if(ile_bomb >= 9)
+        throw new EndOfTheGame();
 }
 
 // Saper

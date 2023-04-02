@@ -40,9 +40,8 @@ public:
     void mousePressEvent(QMouseEvent *e); // declared after SaperGui
 };
 class GuiBox : public QPushButton{
-private:
-    bool clicked;
 public:
+    bool clicked;
     box* master;
     GuiBox(box* master){
         this->master = master;
@@ -60,11 +59,15 @@ public:
 
 class SaperGui : protected Saper, public QMainWindow{
     vector<GuiBox*> box_list;
+    ResetButton* resetButton;
 public:
     SaperGui(board_size w, difficulty t) : Saper(w, t), QMainWindow(){
         setFixedSize(size());
+        resetButton = new ResetButton();
+
         auto *menu = new QMenuBar(this);
             menu->addMenu("Obcje Nowej Gry");
+
 
         auto root = new QWidget(this);
         auto rootLayout = new QGridLayout(root);
@@ -73,7 +76,7 @@ public:
 
             // tool bar
             rootLayout->addWidget(new QLabel("1"), 0, 0);
-            rootLayout->addWidget(new ResetButton(), 0, 1);
+            rootLayout->addWidget(resetButton, 0, 1);
             rootLayout->addWidget(new QLabel("3"), 0, 2);
             // board
             auto boardWidget = new QWidget(root);
@@ -101,6 +104,11 @@ public:
             }
             i++;
         }
+    }
+    void lost(){
+        resetButton->setText("X(");
+        for(auto i : box_list)
+            i->mousePressEvent(nullptr);
     }
 private:
     QGridLayout* createBoard(QWidget *root){
@@ -151,7 +159,14 @@ void GuiBox::mousePressEvent(QMouseEvent *e = nullptr) {
         else{ // if(master->ile_bomb == 0)
             main_window->click_around(this);
         }
-        master->hit();
+        try{
+            master->hit();
+        }
+        catch(EndOfTheGame e){
+            this->setStyleSheet("background-color: red");
+            main_window->lost();
+        }
+
     }
 }
 int main(int argc, char *argv[]) {
