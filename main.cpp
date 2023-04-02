@@ -21,6 +21,7 @@
 #include <QMouseEvent>
 
 #include <QFile>
+#include <QStyle>
 
 class SaperGuiError : exception{
     string msg;
@@ -54,6 +55,7 @@ public:
         clicked = false;
         setText(" ");
         setFlat(false);
+        setStyleSheet("");
     }
 };
 
@@ -61,7 +63,9 @@ class SaperGui : protected Saper, public QMainWindow{
     vector<GuiBox*> box_list;
     ResetButton* resetButton;
 public:
+    bool hasEnded;
     SaperGui(board_size w, difficulty t) : Saper(w, t), QMainWindow(){
+        hasEnded = false;
         setFixedSize(size());
         resetButton = new ResetButton();
 
@@ -86,7 +90,7 @@ public:
         this->show();
     }
     void reset(){
-        cout << "reset" << endl;
+        hasEnded = false;
         reset_core();
         for(auto i : box_list)
             i->reset();
@@ -106,6 +110,7 @@ public:
         }
     }
     void lost(){
+        hasEnded = true;
         resetButton->setText("X(");
         for(auto i : box_list)
             i->mousePressEvent(nullptr);
@@ -135,7 +140,7 @@ void ResetButton::mousePressEvent(QMouseEvent *e){
     this->setText(":D");
 }
 void GuiBox::mousePressEvent(QMouseEvent *e = nullptr) {
-     if(e != nullptr && e -> button() == Qt::RightButton){
+     if(!clicked && e != nullptr && e -> button() == Qt::RightButton){
         if(master->oznaczenie == null){
             master->oznaczenie = flaga;
             setText("⚑");
@@ -149,9 +154,10 @@ void GuiBox::mousePressEvent(QMouseEvent *e = nullptr) {
             setText("");
         }
     }
-    else if((e == nullptr || e->button() == Qt::LeftButton) && !clicked && master->oznaczenie != flaga){
+    else if(((e == nullptr || e->button() == Qt::LeftButton) && !clicked && (master->oznaczenie != flaga || main_window->hasEnded))){
         clicked = true;
-        setFlat(true);
+        if(!main_window->hasEnded)
+            setFlat(true);
         if(master->ile_bomb >=9)
             setText("X");
         else if(master->ile_bomb != 0)
@@ -159,11 +165,8 @@ void GuiBox::mousePressEvent(QMouseEvent *e = nullptr) {
         else{ // if(master->ile_bomb == 0)
             main_window->click_around(this);
         }
-        try{
-            master->hit();
-        }
-        catch(EndOfTheGame e){
-            this->setStyleSheet("background-color: red");
+        if(!main_window->hasEnded && master->ile_bomb >= 9){
+            this->setStyleSheet("color: red");
             main_window->lost();
         }
 

@@ -26,7 +26,6 @@ struct box{
     user_mark oznaczenie;
     box();
 
-    void hit();
 };
 enum board_size{
     smal = 1,

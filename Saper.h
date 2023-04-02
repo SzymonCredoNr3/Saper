@@ -9,10 +9,7 @@ box::box(){
     ile_bomb = (char)0;
 }
 
-void box::hit() {
-    if(ile_bomb >= 9)
-        throw new EndOfTheGame();
-}
+
 
 // Saper
 Saper::Saper(board_size w, difficulty t) {
