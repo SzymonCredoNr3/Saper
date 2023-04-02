@@ -37,6 +37,7 @@ class ResetButton : public QPushButton{
 public:
     ResetButton() : QPushButton(":D"){
         setFixedSize(50, 50);
+        setFont(QFont::)
     }
     void mousePressEvent(QMouseEvent *e); // declared after SaperGui
 };
@@ -159,7 +160,7 @@ void GuiBox::mousePressEvent(QMouseEvent *e = nullptr) {
         if(!main_window->hasEnded)
             setFlat(true);
         if(master->ile_bomb >=9)
-            setText("X");
+            setText("☀");
         else if(master->ile_bomb != 0)
             setText(QString::fromStdString(to_string((int)(master->ile_bomb))));
         else{ // if(master->ile_bomb == 0)
