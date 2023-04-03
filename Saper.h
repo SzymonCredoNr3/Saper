@@ -8,9 +8,6 @@ box::box(){
     oznaczenie = null;
     ile_bomb = (char)0;
 }
-
-
-
 // Saper
 Saper::Saper(board_size w, difficulty t) {
     setDifficulty(t);

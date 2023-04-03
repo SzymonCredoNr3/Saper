@@ -14,8 +14,7 @@ public:
         return msg.c_str();
     }
 };
-class EndOfTheGame : exception{
-};
+
 enum user_mark{
     znak_zapytania = 2,
     flaga = 1,
